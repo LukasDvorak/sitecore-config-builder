@@ -17,17 +17,38 @@ namespace SitecoreConfigBuilder
     {
         protected readonly FileInfo WebConfigFile;
 
+        protected static string[] _directories = new[] { "Sitecore", "Modules", "Include" };
+
         public ConsoleConfigReader()
         {
         }
 
-        public ConsoleConfigReader(FileInfo webConfigFile)
+        public ConsoleConfigReader(FileInfo webConfigFile, IEnumerable<string> includeFiles) : this(includeFiles)
         {
             this.WebConfigFile = webConfigFile;
         }
 
         public ConsoleConfigReader(IEnumerable<string> includeFiles) : base(includeFiles)
         {
+        }
+
+        public static IEnumerable<string> GetIncludeFiles(FileInfo webConfigFile)
+        {
+            var includeFiles = new List<string>();
+            var appConfigFolder = webConfigFile.DirectoryName + "\\App_Config";
+
+            for (int i = 0; i < _directories.Length; i++)
+            {
+                var dirPath = appConfigFolder + "/" + _directories[i];
+
+                if (Directory.Exists(dirPath))
+                {
+                    var files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
+                    includeFiles.AddRange(files);
+                }
+            }
+
+            return includeFiles;
         }
 
         public XmlDocument CreateConfiguration()
@@ -76,6 +97,7 @@ namespace SitecoreConfigBuilder
             {
                 try
                 {
+                    Console.WriteLine("Loading included file: " + file);
                     patcher.ApplyPatch(file);
                 }
                 catch (Exception ex)

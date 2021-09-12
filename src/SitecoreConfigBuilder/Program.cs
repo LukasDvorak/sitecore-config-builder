@@ -46,8 +46,6 @@ namespace SitecoreConfigBuilder
         {
             path = path.TrimEnd('\\');
 
-            IEnumerable<string> includeFiles = Enumerable.Empty<string>();
-
             if (!File.Exists(path))
             {
                 throw new ApplicationException("Path is not directory or zip file");
@@ -59,11 +57,20 @@ namespace SitecoreConfigBuilder
             //}
 
             var f = new FileInfo(path);
-            var dir = f.DirectoryName;
+           
+            if (!f.Name.Equals("web.config", StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new ApplicationException("File is not 'web.config'");
+            }
 
-            var configNode = new ConsoleConfigReader(f);
+            var dirName = f.DirectoryName;
+
+            var dir = new DirectoryInfo(dirName);
+            var includeFiles = ConsoleConfigReader.GetIncludeFiles(f);
+
+            var configNode = new ConsoleConfigReader(f, includeFiles);
             var config = configNode.CreateConfiguration();
-            config.Save(dir + "\\showconfig.aspx.xml");
+            config.Save(dirName + "\\showconfig.aspx.xml");
             //xmlDocument.DocumentElement).ApplyPatch(configNode)
         }
     }
