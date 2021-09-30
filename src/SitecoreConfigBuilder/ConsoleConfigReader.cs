@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
+using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Sitecore.Configuration;
 using Sitecore.Diagnostics;
@@ -13,7 +9,7 @@ using Sitecore.Xml;
 
 namespace SitecoreConfigBuilder
 {
-    public class ConsoleConfigReader : ConfigReader
+    public class ConsoleConfigReader : RuleBasedConfigReader
     {
         protected readonly FileInfo WebConfigFile;
 
@@ -23,32 +19,9 @@ namespace SitecoreConfigBuilder
         {
         }
 
-        public ConsoleConfigReader(FileInfo webConfigFile, IEnumerable<string> includeFiles) : this(includeFiles)
+        public ConsoleConfigReader(FileInfo webConfigFile, IEnumerable<string> includeFiles, NameValueCollection appSettings) : base(includeFiles, appSettings)
         {
             this.WebConfigFile = webConfigFile;
-        }
-
-        public ConsoleConfigReader(IEnumerable<string> includeFiles) : base(includeFiles)
-        {
-        }
-
-        public static IEnumerable<string> GetIncludeFiles(FileInfo webConfigFile)
-        {
-            var includeFiles = new List<string>();
-            var appConfigFolder = webConfigFile.DirectoryName + "\\App_Config";
-
-            for (int i = 0; i < _directories.Length; i++)
-            {
-                var dirPath = appConfigFolder + "/" + _directories[i];
-
-                if (Directory.Exists(dirPath))
-                {
-                    var files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
-                    includeFiles.AddRange(files);
-                }
-            }
-
-            return includeFiles;
         }
 
         public XmlDocument CreateConfiguration()
@@ -87,26 +60,6 @@ namespace SitecoreConfigBuilder
             }
 
             return null;
-        }
-
-        protected override void LoadIncludeFiles(ConfigPatcher patcher, IEnumerable<string> files)
-        {
-            Assert.ArgumentNotNull((object)patcher, nameof(patcher));
-
-            foreach (string file in files)
-            {
-                try
-                {
-                    Console.WriteLine("Loading included file: " + file);
-                    patcher.ApplyPatch(file);
-                }
-                catch (Exception ex)
-                {
-                    throw new Sitecore.Exceptions.ConfigurationException("An error occurred during applying the patch file: " + file, ex);
-                }
-
-                this.ExpandIncludeFiles(patcher.Document, new Hashtable());
-            }
         }
 
         protected override XmlDocument LoadXmlFile(string path)
