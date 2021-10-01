@@ -73,10 +73,7 @@ namespace SitecoreConfigBuilder
                 Console.WriteLine($" {key} = {value}");
             }
 
-            Thread.Sleep(200);
-
             var layers = layerProvider.GetLayers();
-
             var updatedLayers = new List<IConfigurationLayer>();
 
             Console.WriteLine("Configuration layers:");
@@ -87,41 +84,38 @@ namespace SitecoreConfigBuilder
                 var fixedLayer = new DefaultConfigurationLayer(layer.Name, folder);
                 fixedLayer.LoadOrder.AddRange(layer.LoadOrder);
                 updatedLayers.Add(fixedLayer);
+
                 Console.WriteLine($" {layer.Name} => {folder}");
+
                 foreach (var item in layer.LoadOrder)
                 {
                     var loadOrderPath = (layer.IncludeFolder + item.Path).Replace("/","\\");
+
                     Console.WriteLine($" - path: \"{loadOrderPath}\", type: {item.Type}, enabled: {item.Enabled}");
                 }
             }
 
-            Thread.Sleep(200);
             Console.WriteLine("Getting include files:");
-            Thread.Sleep(200);
 
-            var configFiles2 = updatedLayers.SelectMany(x => x.GetConfigurationFiles());
+            var configFiles = updatedLayers.SelectMany(x => x.GetConfigurationFiles());
 
-            foreach (var item in configFiles2)
+            foreach (var item in configFiles)
             {
                 var configFilePath = item.Replace(webConfig.DirectoryName, "");
                 Console.WriteLine($" - {configFilePath}");
             }
 
             var rootDirName = webConfig.DirectoryName;
-
             var dir = new DirectoryInfo(rootDirName);
+            var configNode = new ConsoleConfigReader(webConfig, configFiles, appSettings);
 
-            //new ConfigurationRulesContext()
-
-            var configNode = new ConsoleConfigReader(webConfig, configFiles2, appSettings);
-
-            Thread.Sleep(200);
             Console.WriteLine("Creating confiuguration ...");
+
             var config = configNode.CreateConfiguration();
             var configFile = rootDirName + "\\showconfig.aspx.xml";
             config.Save(configFile);
+
             Console.WriteLine($"Configuration saved to '{configFile}'");
-            //xmlDocument.DocumentElement).ApplyPatch(configNode)
         }
     }
 }

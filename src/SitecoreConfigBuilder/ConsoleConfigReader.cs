@@ -13,8 +13,6 @@ namespace SitecoreConfigBuilder
     {
         protected readonly FileInfo WebConfigFile;
 
-        protected static string[] _directories = new[] { "Sitecore", "Modules", "Include" };
-
         public ConsoleConfigReader()
         {
         }
@@ -42,13 +40,7 @@ namespace SitecoreConfigBuilder
         protected XmlNode GetConfigurationNode()
         {
             var xml = XmlUtil.LoadXmlFile(this.WebConfigFile.FullName).DocumentElement;
-            //Assert.ArgumentNotNull((object)xpath, nameof(xpath));
-            //if (ConsoleConfigReader.ZeroConfiguration)
-            //    return (XmlNode)Sitecore.Xml.XmlUtil.LoadXml("<sitecore />").DocumentElement;
-            //var reader = ConfigurationManager.GetSection("sitecore") as ConsoleConfigReader;
-            //if (reader == null)
-            //    return (XmlNode)null;
-            //return xpath.Length > 0 ? reader.GetNode(xpath) : reader._section;
+            
             foreach (XmlNode item in xml.ChildNodes)
             {
                 if (item.Name == "sitecore")
