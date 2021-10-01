@@ -1,6 +1,10 @@
 # Sitecore Config Builder
 
-This small console application allows you to build Sitecore configuration as you can see it on /sitecore/admin/showconfig.aspx withour Sitecore instance. It could be handy when you cannot access showconfig.aspx page, for example on CD server.
+This small console application allows you to build Sitecore configuration as you can see it on **/sitecore/admin/showconfig.aspx** without running Sitecore instance. It could be handy when you cannot access showconfig.aspx page, for example on CD server.
+
+## Technical details
+
+This version is based on **.NET Framework 4.8** and uses **Sitecore.Kernel** library version **10.1 Update-1**.
 
 ## How to use it
 
